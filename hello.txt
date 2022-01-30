@@ -1,5 +1,1 @@
-class hello{
-   public static void main(){
-     System.out.println("javaEE c++");
-   }
-}
+以上ssm-curd是按照尚硅谷课程用ssm+maven+bootstrap编写的一个简单的crud样例，windows上运行无bug,但部署到云服务器上有bug,可能是由于使用了myBatis逆向工程的原因，暂未修改bug;
