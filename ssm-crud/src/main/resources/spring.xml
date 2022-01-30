@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+<!--spring的配置文件，主要处理和业务逻辑相关的-->
+<!--****************************扫描配置********************************-->
+    <!--扫描除控制层之外的所有-->
+    <context:component-scan base-package="com.atguigu.crud">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+<!--****************************数据源配置********************************-->
+    <!--配置数据源，也就是配置渡泸医数据库连接池-->
+    <context:property-placeholder location="classpath:JDBC.properties"/>
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="driverClassName" value="${mysql.driver}"/>
+        <property name="username" value="${mysql.username}"/>
+        <property name="url" value="${mysql.url}"/>
+        <property name="password" value="${mysql.password}"/>
+    </bean>
+<!--****************************事务配置********************************-->
+    <!--开启基于注解的事物，使用xml配置的形式的事务-->
+    <aop:config>
+        <!--切入点表达式-->
+        <aop:pointcut id="txPoint" expression="execution(* com.atguigu.crud.service.*.*(..))"/>
+        <!--配置事务增强
+            属性advice-ref：事务如何增强
+            属性pointcut-ref：哪些方法切入事务(切入点表达式)-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint"/>
+    </aop:config>
+    <!--配置事务增强，事务如何切入
+            属性transaction-manager:填spring事务管理的id-->
+    <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager">
+        <tx:attributes>
+            <!--*:代表所有方法都是事务方法-->
+            <tx:method name="*"/>
+            <!--以get开始的所有方法都是查询方法，从而进行调优-->
+            <tx:method name="get*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--spring事务管理-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="dataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+<!--****************************mybatis整合配置********************************-->
+    <!--创建sqlSessionFactory对象-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+        <!--数据源（数据库连接池）-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--指定mybatis全局配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--指定mapper文件的位置-->
+        <property name="mapperLocations" value="classpath:mappers/*.xml"/>
+    </bean>
+    <!--配置一个可以批量插入数据的sqlSession-->
+    <bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlsession">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"/>
+        <constructor-arg name="executorType" value="BATCH"/>
+    </bean>
+    <!--扫描所有的mapper接口的实现，让他们可以自动注入-->
+    <mybatis-spring:scan base-package="com.atguigu.crud.dao"/>
+
+</beans>

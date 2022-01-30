@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration 
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--开启驼峰命名-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--启用延迟加载:启用后,所有关系将被延迟加载,通过使用特定关系来抓取某个属性-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--开启后,具有惰性加载属性的对象将完全在调用任何惰性属性的过程中加载。(就是当用到时某 个属性时才查询)-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启全局二级缓存配置-->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+    <plugins>
+        <!--导入pagehelper的拦截器-->
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="reasonable" value="true"/>
+            <!--分页合理化参数，如果页码小于1则查第一页，若页码大于总页数则查最后一页-->
+        </plugin>
+    </plugins>
+</configuration>
